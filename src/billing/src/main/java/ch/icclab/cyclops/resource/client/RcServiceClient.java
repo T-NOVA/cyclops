@@ -106,11 +106,9 @@ public class RcServiceClient extends ClientResource {
     }
 
     public String getCdrForRevenueSharingReport(String provider, String fromDate, String toDate) {
-//    public String getCdrForRevenueSharingReport(String userId, String virtualFunctionProvider, String serviceProvider, String fromDate, String toDate) {
         JSONObject resultArray = null;
 
         ClientResource resource = new ClientResource(url + "/revenue/report");
-//        resource.getReference().addQueryParameter("userId", userId);
         resource.getReference().addQueryParameter("provider", provider);
         resource.getReference().addQueryParameter("from", fromDate);
         resource.getReference().addQueryParameter("to", toDate);

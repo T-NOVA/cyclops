@@ -17,6 +17,8 @@
 package ch.icclab.cyclops.resource.impl;
 
 import ch.icclab.cyclops.util.Load;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
@@ -28,22 +30,28 @@ import org.restlet.resource.ClientResource;
  */
 public class AccountingClient extends ClientResource {
     private String url = Load.configuration.get("AccountingUrl");
+    final static Logger logger = LogManager.getLogger(AccountingClient.class.getName());
+
 
     /**
      * This method gets the violations for a given instanceId of a vnf
+     *
      * @param instanceId
      * @return
      */
     public String getVnfViolations(String instanceId) {
         JSONArray resultArray = null;
 
-        ClientResource resource = new ClientResource(url + "/sla/vnf-violation/?instanceId="+instanceId);
-        resource.get(MediaType.APPLICATION_JSON);
-        Representation output = resource.getResponseEntity();
+        ClientResource resource = new ClientResource(url + "/sla/vnf-violation/?instanceId=" + instanceId);
+        logger.debug("Call to accounting: " + url + "/sla/vnf-violation/?instanceId=" + instanceId);
         try {
-            resultArray = new JSONArray(output.getText());
+            resource.get(MediaType.APPLICATION_JSON);
+            Representation output = resource.getResponseEntity();
+            String outputText = output.getText().toString();
+            logger.debug("Response from accounting: " + outputText);
+            resultArray = new JSONArray(outputText);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting the response from accounting: " + e.getMessage());
         }
 
         return resultArray.toString();
@@ -51,19 +59,23 @@ public class AccountingClient extends ClientResource {
 
     /**
      * This method gets the violations for a given instanceId of a service
+     *
      * @param instanceId
      * @return
      */
     public String getServiceViolations(String instanceId) {
         JSONArray resultArray = null;
 
-        ClientResource resource = new ClientResource(url + "/sla/service-violation/?instanceId="+instanceId);
-        resource.get(MediaType.APPLICATION_JSON);
-        Representation output = resource.getResponseEntity();
+        ClientResource resource = new ClientResource(url + "/sla/service-violation/?instanceId=" + instanceId);
+        logger.debug("Call to accounting: " + url + "/sla/service-violation/?instanceId=" + instanceId);
         try {
-            resultArray = new JSONArray(output.getText());
+            resource.get(MediaType.APPLICATION_JSON);
+            Representation output = resource.getResponseEntity();
+            String outputText = output.getText().toString();
+            logger.debug("Response from accounting: " + outputText);
+            resultArray = new JSONArray(outputText);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting the response from accounting: " + e.getMessage());
         }
 
         return resultArray.toString();

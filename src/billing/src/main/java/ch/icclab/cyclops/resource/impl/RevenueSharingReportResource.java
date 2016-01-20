@@ -21,6 +21,8 @@ import ch.icclab.cyclops.resource.client.RcServiceClient;
 import ch.icclab.cyclops.usecases.tnova.model.*;
 import ch.icclab.cyclops.util.Load;
 import com.google.gson.Gson;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.influxdb.dto.BatchPoints;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.Get;
@@ -36,6 +38,8 @@ import java.util.Date;
  *         Created on 04.12.15.
  */
 public class RevenueSharingReportResource extends ServerResource {
+    final static Logger logger = LogManager.getLogger(RevenueSharingReportResource.class.getName());
+
     /**
      * Connects to the RC Service and requests for the CDRs. Fetches the tax and SLA penalties.
      * Constructs the bill response
@@ -52,7 +56,7 @@ public class RevenueSharingReportResource extends ServerResource {
         String toDate = getQueryValue("to");
         Date dateFrom = parseDate(fromDate);
         Date dateTo = parseDate(toDate);
-        //get the CDRs
+        logger.debug("Attempting to get the cdr for the provider: "+provider+" from: "+fromDate+" to: "+toDate);
         response = client.getCdrForRevenueSharingReport(provider, fromDate, toDate);
 
         Gson gson = new Gson();
@@ -60,12 +64,14 @@ public class RevenueSharingReportResource extends ServerResource {
         RevenueSharingReport revenueSharingReport = gson.fromJson(response, RevenueSharingReport.class);
         RevenueSharingEntry[] entries = revenueSharingReport.getRevenues();
         //add the discounts per violation
+        logger.debug("Attempting to add the violations to the gotten CDR report");
         RevenueSharingFullEntry[] revenues = addViolationsToReport(entries, dateFrom, dateTo);
         BatchPoints container = dbClient.giveMeEmptyContainer();
         for (int i = 0; i < revenues.length; i++) {
             container.point(revenues[i].toDBPoint());
         }
         //save them into the db
+        logger.debug("Saving entries into the db");
         dbClient.saveContainerToDB(container);
         RevenueSharingFullReport result = new RevenueSharingFullReport();
         result.setFrom(revenueSharingReport.getFrom());
@@ -103,17 +109,14 @@ public class RevenueSharingReportResource extends ServerResource {
 
         for (int i = 0; i < entries.length; i++) {
             String instanceId = entries[i].getInstanceId();
-            //"call to accounting to get the violations from instanceId in /sla/vnf-violation/?instanceId=instanceId";
+            logger.debug("Trying to get the violations for the instance: "+instanceId);
             String violationsResponse = client.getVnfViolations(instanceId);
             SLA[] violationArray = gson.fromJson(violationsResponse, SLA[].class);
-            int slaCounter = 0;
-            double slaDiscount = 0.0;
             for (int o = 0; o < violationArray.length; o++) {
                 Date violationTime = getDateFromViolation(violationArray[o].getDatetime());
                 if (violationTime.before(dateTo) && violationTime.after(dateFrom)) {
-                    slaCounter++;
                     if (!usedInstances.contains(instanceId)) {
-                        ArrayList<RevenueSharingFullEntry> computedEntries = computeDiscount(violationArray[o].getDefinition(), entries, instanceId);
+                        ArrayList<RevenueSharingFullEntry> computedEntries = computeDiscount(violationArray[o].getDefinition(), entries, instanceId, violationArray.length);
                         for (RevenueSharingFullEntry entry : computedEntries) {
                             result.add(entry);
                         }
@@ -122,6 +125,7 @@ public class RevenueSharingReportResource extends ServerResource {
                 }
             }
             if (violationArray.length == 0) {
+                logger.debug("The instance: "+instanceId+" hasn't got any violation.");
                 result.add(new RevenueSharingFullEntry(entries[i], 0));
             }
         }
@@ -176,6 +180,7 @@ public class RevenueSharingReportResource extends ServerResource {
     private double computePrice(SLADefinition definition, double price) {
         Double expression = Double.parseDouble(definition.getExpression());
         if (definition.getType().equalsIgnoreCase("discount")) {
+            logger.debug("Computing discount");
             if (definition.getUnit().equals("%")) {
                 return price * expression / 100;
             } else {
@@ -193,12 +198,14 @@ public class RevenueSharingReportResource extends ServerResource {
      * @param instanceId
      * @return
      */
-    private ArrayList<RevenueSharingFullEntry> computeDiscount(SLADefinition definition, RevenueSharingEntry[] entries, String instanceId) {
+    private ArrayList<RevenueSharingFullEntry> computeDiscount(SLADefinition definition, RevenueSharingEntry[] entries, String instanceId, int violationCounter) {
         ArrayList<RevenueSharingFullEntry> revenueSharingFullEntries = new ArrayList<RevenueSharingFullEntry>();
         String validityUnit = definition.getValidity().substring(2);
         int validityPeriod = Integer.parseInt(definition.getValidity().substring(1, 2));
         double discountValue = 0;
+        logger.debug("Compute discount for period: "+definition.getValidity());
         if (validityUnit.equalsIgnoreCase("D")) {
+            logger.debug("Computing discount for DAYS");
             int modifiedInstances = 0;
             for (int i = 0; i < entries.length; i++) {
                 if (entries[i].getInstanceId().equals(instanceId)) {
@@ -206,10 +213,12 @@ public class RevenueSharingReportResource extends ServerResource {
                         discountValue = computePrice(definition, entries[i].getPrice());
                         modifiedInstances++;
                     }
-                    revenueSharingFullEntries.add(new RevenueSharingFullEntry(entries[i], discountValue));
+                    logger.debug("Adding discount : "+discountValue+" to the entries.");
+                    revenueSharingFullEntries.add(new RevenueSharingFullEntry(entries[i], discountValue, violationCounter));
                 }
             }
         } else if (validityUnit.equalsIgnoreCase("W")) {
+            logger.debug("Computing discount for WEEKS");
             int modifiedInstances = 0;
             for (int i = 0; i < entries.length; i++) {
                 if (entries[i].getInstanceId().equals(instanceId)) {
@@ -217,10 +226,12 @@ public class RevenueSharingReportResource extends ServerResource {
                         discountValue = computePrice(definition, entries[i].getPrice());
                         modifiedInstances++;
                     }
-                    revenueSharingFullEntries.add(new RevenueSharingFullEntry(entries[i], discountValue));
+                    logger.debug("Adding discount : "+discountValue+" to the entries.");
+                    revenueSharingFullEntries.add(new RevenueSharingFullEntry(entries[i], discountValue, violationCounter));
                 }
             }
         } else if (validityUnit.equalsIgnoreCase("H")) {
+            logger.debug("Computing discount for HOURS");
             int modifiedInstances = 0;
             for (int i = 0; i < entries.length; i++) {
                 if (entries[i].getInstanceId().equals(instanceId)) {
@@ -228,7 +239,8 @@ public class RevenueSharingReportResource extends ServerResource {
                         discountValue = computePrice(definition, entries[i].getPrice());
                         modifiedInstances++;
                     }
-                    revenueSharingFullEntries.add(new RevenueSharingFullEntry(entries[i], discountValue));
+                    logger.debug("Adding discount : "+discountValue+" to the entries.");
+                    revenueSharingFullEntries.add(new RevenueSharingFullEntry(entries[i], discountValue, violationCounter));
                 }
             }
         }

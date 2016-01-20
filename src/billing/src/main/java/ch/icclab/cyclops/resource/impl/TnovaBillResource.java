@@ -21,6 +21,8 @@ import ch.icclab.cyclops.resource.client.RcServiceClient;
 import ch.icclab.cyclops.usecases.tnova.model.*;
 import ch.icclab.cyclops.util.Load;
 import com.google.gson.Gson;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.influxdb.dto.BatchPoints;
 import org.restlet.data.MediaType;
 import org.restlet.resource.ClientResource;
@@ -37,6 +39,8 @@ import java.util.Date;
  *         Created on 04.12.15.
  */
 public class TnovaBillResource extends ServerResource {
+    final static Logger logger = LogManager.getLogger(RevenueSharingReportResource.class.getName());
+
     /**
      * Connects to the RC Service and requests for the CDRs. Fetches the tax and SLA penalties.
      * Constructs the bill response
@@ -53,19 +57,20 @@ public class TnovaBillResource extends ServerResource {
         String toDate = getQueryValue("to");
         Date dateFrom = parseDate(fromDate);
         Date dateTo = parseDate(toDate);
-
+        logger.debug("Attempting to get the cdr for the user: "+userId+" from: "+fromDate+" to: "+toDate);
         response = client.getCdrForBill(userId, fromDate, toDate);
 
         Gson gson = new Gson();
 
         RevenueSharingReport revenueSharingReport = gson.fromJson(response, RevenueSharingReport.class);
         RevenueSharingEntry[] entries = revenueSharingReport.getRevenues();
-
+        logger.debug("Attempting to add the violations to the gotten CDR report");
         RevenueSharingFullEntry[] charges = addViolationsToReport(entries, dateFrom, dateTo);
         BatchPoints container = dbClient.giveMeEmptyContainer();
         for(int i = 0; i<charges.length; i++){
             container.point(charges[i].toDBPoint());
         }
+        logger.debug("Saving entries into the db");
         dbClient.saveContainerToDB(container);
 
         FullBill result = new FullBill();
@@ -105,9 +110,8 @@ public class TnovaBillResource extends ServerResource {
 
         for (int i = 0; i < entries.length; i++) {
             String instanceId = entries[i].getInstanceId();
+            logger.debug("Trying to get the violations for the instance: "+instanceId);
             String violationsResponse = client.getServiceViolations(instanceId);
-            //"call to accounting to get the violations from instanceId in /sla/service-violation/?instanceId=instanceId";
-            //String violationsResponse = "[]";
             SLA[] violationArray = gson.fromJson(violationsResponse, SLA[].class);
             for (int o = 0; o < violationArray.length; o++) {
                 Date violationTime = getDateFromViolation(violationArray[o].getDatetime());
@@ -122,6 +126,7 @@ public class TnovaBillResource extends ServerResource {
                 }
             }
             if(violationArray.length == 0){
+                logger.debug("The instance: "+instanceId+" hasn't got any violation.");
                 result.add(new RevenueSharingFullEntry(entries[i], 0));
             }
         }
@@ -199,7 +204,9 @@ public class TnovaBillResource extends ServerResource {
         String validityUnit = definition.getValidity().substring(2);
         int validityPeriod = Integer.parseInt(definition.getValidity().substring(1, 2));
         double discountValue = 0;
+        logger.debug("Compute discount for period: "+definition.getValidity());
         if (validityUnit.equalsIgnoreCase("D")) {
+            logger.debug("Computing discount for DAYS");
             int modifiedInstances = 0;
             for(int i = 0; i < entries.length; i++){
                 if(entries[i].getInstanceId().equals(instanceId)) {
@@ -207,10 +214,12 @@ public class TnovaBillResource extends ServerResource {
                         discountValue = computePrice(definition, entries[i].getPrice());
                         modifiedInstances++;
                     }
+                    logger.debug("Adding discount : "+discountValue+" to the entries.");
                     revenueSharingFullEntries.add(new RevenueSharingFullEntry(entries[i], discountValue));
                 }
             }
         } else if (validityUnit.equalsIgnoreCase("W")) {
+            logger.debug("Computing discount for WEEKS");
             int modifiedInstances = 0;
             for(int i = 0; i < entries.length; i++) {
                 if (entries[i].getInstanceId().equals(instanceId)) {
@@ -218,10 +227,12 @@ public class TnovaBillResource extends ServerResource {
                         discountValue = computePrice(definition, entries[i].getPrice());
                         modifiedInstances++;
                     }
+                    logger.debug("Adding discount : "+discountValue+" to the entries.");
                     revenueSharingFullEntries.add(new RevenueSharingFullEntry(entries[i], discountValue));
                 }
             }
         } else if (validityUnit.equalsIgnoreCase("H")) {
+            logger.debug("Computing discount for HOURS");
             int modifiedInstances = 0;
             for(int i = 0; i < entries.length; i++) {
                 if (entries[i].getInstanceId().equals(instanceId)) {
@@ -229,6 +240,7 @@ public class TnovaBillResource extends ServerResource {
                         discountValue = computePrice(definition, entries[i].getPrice());
                         modifiedInstances++;
                     }
+                    logger.debug("Adding discount : "+discountValue+" to the entries.");
                     revenueSharingFullEntries.add(new RevenueSharingFullEntry(entries[i], discountValue));
                 }
             }

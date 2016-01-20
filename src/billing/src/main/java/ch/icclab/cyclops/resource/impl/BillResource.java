@@ -18,6 +18,8 @@
 package ch.icclab.cyclops.resource.impl;
 
 import ch.icclab.cyclops.resource.client.RcServiceClient;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 
@@ -27,6 +29,8 @@ import org.restlet.resource.ServerResource;
  * Description: Creates the bill by combining the CDRs along with the tax and SLA details
  */
 public class BillResource extends ServerResource {
+    final static Logger logger = LogManager.getLogger(BillResource.class.getName());
+
     /**
      * Connects to the RC Service and requests for the CDRs. Fetches the tax and SLA penalties.
      * Constructs the bill response
@@ -40,12 +44,8 @@ public class BillResource extends ServerResource {
         String userid = getQueryValue("userId");
         String fromDate = getQueryValue("from");
         String toDate = getQueryValue("to");
-
+        logger.debug("Attempting to get the cdr for the user: "+userid+" from: "+fromDate+" to: "+toDate);
         response = client.getCdr(userid,fromDate,toDate);
-
-        // Consider the discount
-        // Add Tax and other charges
-        // Construct the response
 
         return response;
     }

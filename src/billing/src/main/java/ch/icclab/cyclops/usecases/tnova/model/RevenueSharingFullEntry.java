@@ -38,10 +38,10 @@ public class RevenueSharingFullEntry {
     private String priceUnit;
     private Double discountValue;
     private Double finalPrice;
-    private Integer slaPenalties;
+    private Integer totalViolations;
     private String userId;
 
-    public RevenueSharingFullEntry(RevenueSharingEntry revenueSharingEntry, Double discountValue, Integer slaPenalties) {
+    public RevenueSharingFullEntry(RevenueSharingEntry revenueSharingEntry, Double discountValue, Integer totalViolations) {
         this.time = revenueSharingEntry.getTime();
         this.userId = revenueSharingEntry.getUserId();
         this.instanceId = revenueSharingEntry.getInstanceId();
@@ -50,7 +50,7 @@ public class RevenueSharingFullEntry {
         this.priceUnit = revenueSharingEntry.getPriceUnit();
         this.discountValue = discountValue;
         this.finalPrice = this.price - this.discountValue;
-        this.slaPenalties = slaPenalties;
+        this.totalViolations = totalViolations;
     }
 
     public RevenueSharingFullEntry(RevenueSharingEntry revenueSharingEntry, double discountValue) {
@@ -60,6 +60,7 @@ public class RevenueSharingFullEntry {
         this.price = revenueSharingEntry.getPrice();
         this.priceUnit = revenueSharingEntry.getPriceUnit();
         this.discountValue = discountValue;
+        this.totalViolations = 0;
         this.finalPrice = this.price - this.discountValue;
     }
 
@@ -92,7 +93,7 @@ public class RevenueSharingFullEntry {
         map.put("priceUnit", priceUnit);
         map.put("usage", usage);
         map.put("discountValue", discountValue);
-        map.put("slaPenalties", slaPenalties);
+        map.put("totalViolations", totalViolations);
         map.put("finalPrice", finalPrice);
 
         return map;
@@ -139,12 +140,12 @@ public class RevenueSharingFullEntry {
         this.discountValue = discountValue;
     }
 
-    public Integer getSlaPenalties() {
-        return slaPenalties;
+    public Integer getTotalViolations() {
+        return totalViolations;
     }
 
-    public void setSlaPenalties(Integer slaPenalties) {
-        this.slaPenalties = slaPenalties;
+    public void setTotalViolations(Integer totalViolations) {
+        this.totalViolations = totalViolations;
     }
 
     public void setTime(String time) {
@@ -196,7 +197,7 @@ public class RevenueSharingFullEntry {
     //This method is going to add to the object the values coming from the SLA response. regarding to violations.
     public void setPrices(ArrayList<Object> values, ArrayList<String> columns) {
         this.setFinalPrice(getDoubleValue(values.get(columns.indexOf("finalPrice"))));
-        this.setSlaPenalties((Integer) values.get(columns.indexOf("slaPenalties")));
+        this.setTotalViolations((Integer) values.get(columns.indexOf("totalViolations")));
         this.setSlaPrice(getDoubleValue(values.get(columns.indexOf("slaPrice"))));
 
     }

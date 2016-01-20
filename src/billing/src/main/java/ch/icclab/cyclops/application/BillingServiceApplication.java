@@ -19,6 +19,8 @@ package ch.icclab.cyclops.application;
 import ch.icclab.cyclops.resource.client.InfluxDbClient;
 import ch.icclab.cyclops.resource.impl.*;
 import ch.icclab.cyclops.util.Load;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.Restlet;
@@ -30,6 +32,8 @@ import org.restlet.routing.Router;
  * Description: The application class which acts as a router to service the incoming API request
  */
 public class BillingServiceApplication extends Application {
+    final static Logger logger = LogManager.getLogger(BillingServiceApplication.class.getName());
+
     /**
      * This method handles the incoming request and routes it to the appropriate resource class
      * <p/>
@@ -71,6 +75,7 @@ public class BillingServiceApplication extends Application {
     }
 
     public void initialiseDatabases() {
+        logger.debug("Initializing Databases.");
         InfluxDbClient dbClient = new InfluxDbClient();
         dbClient.createDatabases(Load.configuration.get("dbName"));
     }
