@@ -44,6 +44,7 @@ RUN ./root/aio-image.sh
 #putting the configuration files in correct path#
 ADD conf/rc-configuration.txt /home/cyclops/src/marketplace/cyclops/src/rc/src/main/webapp/WEB-INF/configuration.txt
 ADD conf/udr-configuration.txt /home/cyclops/src/marketplace/cyclops/src/udr/src/main/webapp/WEB-INF/configuration.txt
+ADD conf/billing-configuration.txt /home/cyclops/src/marketplace/cyclops/src/billing/src/main/webapp/WEB-INF/configuration.txt
 
 #now building the wars and placing in correct folder#
 RUN ./root/aio-build-wars.sh
