@@ -111,8 +111,11 @@ InfluxDBUsername==root
 InfluxDBPassword==root
 InfluxDBDatabaseName==billing_service
 RcServiceUrl==http://localhost:8080/rc
+AccountingUrl==http://localhost
+dbName==billing
+RevenueSharingTableName==revenue_sharing_report
 ```
-The values in the billing micro-service configuration can be left untouched.
+The values in the billing micro-service configuration must be checked for correct value for AccountingUrl field.
 
 ## Activating Cyclops
 After starting the container using cyclops-aio image, you need to activate various micro-services once. This can be dene easily using following curl statements
