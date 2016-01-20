@@ -45,9 +45,9 @@ InfluxDBPassword=root
 InfluxDBDatabaseName=udr_service
 
 # Settings for RabbitMQ in case of event based usage
-RabbitMQUsername=code
-RabbitMQPassword=pass1234
-RabbitMQHost=messaging.demonstrator.info
+RabbitMQUsername=guest
+RabbitMQPassword=guest
+RabbitMQHost=localhost
 RabbitMQPort=5672
 RabbitMQVirtualHost=/
 
@@ -89,8 +89,8 @@ UDRServiceUrl=http://localhost:8080/udr
 RuleEngineUrl=http://localhost:8080/ruleengine/
 RCServiceUrl=http://localhost:8080/rc
 
-#Tnova variables
-AccountingServiceUrl=http://160.85.4.190
+#Tnova variables, change it
+AccountingServiceUrl=http://160.85.4.150
 
 #Scheduler variables
 SchedulerFrequency=300
