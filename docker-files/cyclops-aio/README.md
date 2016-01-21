@@ -90,7 +90,7 @@ RuleEngineUrl=http://localhost:8080/ruleengine/
 RCServiceUrl=http://localhost:8080/rc
 
 #Tnova variables, change it
-AccountingServiceUrl=http://160.85.4.150
+AccountingServiceUrl=http://localhost
 
 #Scheduler variables
 SchedulerFrequency=300
@@ -102,7 +102,7 @@ InfluxDBUsername=root
 dbName=rc_service
 eventsDbName=event
 ```
-Change the ```AccountingServiceUrl``` value to the location (IP) where the TNova Accounting service is located. Rest of the values you can leave unchanged.
+Change the ```AccountingServiceUrl``` value to the correct location (IP:PORT) where the TNova Accounting service is located. If the ```AccountingService``` is deployed at port 80, the port can be left out. Rest of the values you can leave unchanged.
 
 ## billing micro-service configuration file
 ```
@@ -115,7 +115,7 @@ AccountingUrl==http://localhost
 dbName==billing
 RevenueSharingTableName==revenue_sharing_report
 ```
-The values in the billing micro-service configuration must be checked for correct value for AccountingUrl field.
+The values in the billing micro-service configuration must be checked for correct value for ```AccountingUrl``` field, do not forget to include the port if it is different from 80.
 
 ## Activating Cyclops
 After starting the container using cyclops-aio image, you need to activate various micro-services once. This can be dene easily using following curl statements
