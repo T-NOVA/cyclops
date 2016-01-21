@@ -27,8 +27,10 @@
 #git pull origin master
 
 ### getting cyclops code from github ###
-cd /home/
+cd /home/cyclops/
 git clone https://github.com/T-NOVA/cyclops.git
+mv cyclops/src/ ./
+rm -fR cyclops
 
 ### getting the influxdb-client library ###
 cd
