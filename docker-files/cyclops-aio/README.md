@@ -128,7 +128,7 @@ curl -X GET http://container-ip:8080/billing/
 Now you are all set to start using Cyclops in your business financial processing workflows. Happy Billing!
 
 ### Further Information
-In case of further questions please contact - piyush.harsh@zhaw.ch
+In case of further questions please contact - icclab-rcb-cyclops@dornbirn.zhaw.ch
 
 ## Made by
 
