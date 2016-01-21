@@ -17,17 +17,26 @@
 # Author: Piyush Harsh,
 # URL: piyush-harsh.info
 
-#building udr war#
-cd /home/cyclops/src/marketplace/cyclops/src/udr/
+#building udr war for stash option#
+#cd /home/cyclops/src/marketplace/cyclops/src/udr/
+
+#building udr war for github option#
+cd /home/cyclops/src/udr/
 mvn clean install -DskipTests=true
 cp target/*.war /var/lib/tomcat7/webapps/udr.war
 
-#building rc war#
-cd /home/cyclops/src/marketplace/cyclops/src/rc/
+#building rc war for stash option#
+#cd /home/cyclops/src/marketplace/cyclops/src/rc/
+
+#building rc war for github option#
+cd /home/cyclops/src/rc/
 mvn clean install -DskipTests=true
 cp target/*.war /var/lib/tomcat7/webapps/rc.war
 
-#building billing war#
-cd /home/cyclops/src/marketplace/cyclops/src/billing/
+#building billing war for stash option#
+#cd /home/cyclops/src/marketplace/cyclops/src/billing/
+
+#building billing war for github option#
+cd /home/cyclops/src/billing/
 mvn clean install -DskipTests=true
 cp target/*.war /var/lib/tomcat7/webapps/billing.war

@@ -18,13 +18,17 @@
 # URL: piyush-harsh.info
 
 ### getting udr code from stash ###
-mkdir -p /home/cyclops/src/
-cd /home/cyclops/src/
-git init
-git remote add origin http://your-stash-user:stash-password@stash.i2cat.net/scm/TNOV/wp6.git
-git config core.sparsecheckout true
-echo marketplace/cyclops/src/ >> .git/info/sparse-checkout
-git pull origin master
+#mkdir -p /home/cyclops/src/
+#cd /home/cyclops/src/
+#git init
+#git remote add origin http://your-stash-user:stash-password@stash.i2cat.net/scm/TNOV/wp6.git
+#git config core.sparsecheckout true
+#echo marketplace/cyclops/src/ >> .git/info/sparse-checkout
+#git pull origin master
+
+### getting cyclops code from github ###
+cd /home/
+git clone https://github.com/T-NOVA/cyclops.git
 
 ### getting the influxdb-client library ###
 cd
