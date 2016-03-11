@@ -139,14 +139,14 @@ public class AccountingClient extends ClientResource {
 
                 // and parse it finally
                 billingModel = parseBillingModel(response);
-
+                logger.debug("Obtained billing model: "+ billingModel.getBillingModel());
             } catch (Exception e) {
                 logger.error("Couldn't pull data from Accounting module for " + completeUrl);
             }
         } else {
             logger.error("InstanceType: " + instanceType + " not supported");
         }
-        logger.debug("Obtained billing model: "+ billingModel.getBillingModel());
+        
         return billingModel;
     }
 }
