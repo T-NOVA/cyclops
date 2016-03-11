@@ -512,28 +512,22 @@ public class GenerateResource extends ServerResource {
      * @param dbClient
      */
     private TSDBData getBillingModel(HashMap<String, ArrayList<String>> clientInstanceMap, InfluxDBClient dbClient) {
-        logger.trace("BEGIN  TSDBData sumUsage(HashMap<String, ArrayList<String>> clientInstanceMap, InfluxDBClient dbClient)");
+        logger.debug("Attempting to get the Billing Models");
         ArrayList<TSDBData> UDRs = new ArrayList<TSDBData>();
         Iterator it = clientInstanceMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry) it.next();
             String clientId = pair.getKey().toString();
             ArrayList<String> instances = (ArrayList<String>) pair.getValue();
+            logger.debug("Attempting to get the Billing Model for: "+clientId);
             for (String instance : instances) {
-                //System.out.println("instanceid = " + instance);
-                //System.out.println("clientid = " + clientId);
                 String queryString = "SELECT sum(usage) FROM UDR WHERE clientId='" +
                         clientId + "' AND instanceId='" + instance +
                         "' GROUP BY clientID,instanceID";
                 logger.trace("DATA TSDBData sumUsage(...): query=" + queryString);
-                // TSDBData[] lastEvent = dbClient.query(queryString);
-                //sends the event to array
-                //lastEvents.add(lastEvent[0]);
             }
-            System.out.println(pair.getKey() + " = " + pair.getValue());
             it.remove(); // avoids a ConcurrentModificationException
         }
-        logger.trace("END ArrayList<TSDBData> captureLastEvents(HashMap<String, ArrayList<String>> clientInstanceMap, InfluxDBClient dbClient)");
         return UDRs.get(0);
     }
 

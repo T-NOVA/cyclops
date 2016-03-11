@@ -70,10 +70,12 @@ public class TnovaRCServiceApplication extends AbstractApplication {
 
     @Override
     public void initialiseDatabases() {
+        logger.debug("Attempting to create the databases");
         dbClient.createDatabases(settings.getInfluxDBSettings().getDbName());
     }
 
     private void scheduleTasks() {
+        logger.debug("Attempting to create the Scheduler");
         // schedule some threads to run
         Scheduler scheduler = Scheduler.getInstance();
         try {

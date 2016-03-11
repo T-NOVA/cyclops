@@ -79,9 +79,9 @@ public class TNovaRunner extends AbstractRunner {
                 for (UDREntry udrRow : record.getListOfEntries()) {
 
                     // now ask for billing model from accounting module
-                    BillingModel billingModel = accounting.getBillingModel(customer, udrRow.getInstanceId(), udrRow.getProductType());
+                    TnovaBillingModel billingModel = (TnovaBillingModel) accounting.getBillingModel(customer, udrRow.getInstanceId(), udrRow.getProductType());
                     // we have received correct data
-                    if (billingModel != null) {
+                    if (billingModel != null && billingModel.getBillingModel() != null) {
 
                         // create CDR entry based on UDR entry and Billing model
                         logger.debug("Attempting to create a CDR for the customer: " + customer);
@@ -93,10 +93,6 @@ public class TNovaRunner extends AbstractRunner {
                                 logger.debug("Attempting to create Revenue Sharing report.");
                                 String[] relatives = udrRow.getRelatives().split(", ");
                                 BatchPoints revenueSharingContainer = dbClient.giveMeEmptyContainer();
-//                                for (int i = 0; i < relatives.length; i++) {
-//                                    RevenueSharingEntry revenueSharing = new RevenueSharingEntry(cdr, relatives[i], (TnovaBillingModel) billingModel);
-//                                    revenueSharingContainer.point(revenueSharing.toDBPoint());
-//                                }
                                 RevenueSharingEntry revenueSharing = new RevenueSharingEntry(cdr, udrRow.getInstanceId(), (TnovaBillingModel) billingModel);
                                 revenueSharingContainer.point(revenueSharing.toDBPoint());
                                 dbClient.saveContainerToDB(revenueSharingContainer);
@@ -104,9 +100,10 @@ public class TNovaRunner extends AbstractRunner {
                         } catch (Exception e) {
                             logger.error("Couldn't create the Revenue sharing for the service: " + e.getMessage());
                         }
-
                         // add point to container
                         container.point(cdr.toDBPoint());
+                    }else{
+                        logger.error("The obtained billing model is null.");
                     }
                 }
             }
