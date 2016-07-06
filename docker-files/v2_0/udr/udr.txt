@@ -1,0 +1,47 @@
+# -----------------
+#|Server parameters|
+# -----------------
+ServerHTTPPort=4567
+
+# -------------------
+#|RabbitMQ parameters|
+# -------------------
+ConsumerHost=rabbitmq
+ConsumerUsername=guest
+ConsumerPassword=guest
+ConsumerPort=5672
+ConsumerVirtualHost=/
+ConsumerDataQueue=cyclops
+ConsumerCommandsQueue=cyclops.tnova.udr.commands
+
+PublisherHost=rabbitmq
+PublisherUsername=guest
+PublisherPassword=guest
+PublisherPort=5672
+PublisherVirtualHost=/
+PublisherDispatchExchange=cyclops.tnova.udr.dispatch
+PublisherBroadcastExchange=cyclops.tnova.udr.broadcast
+PublisherIncludeAlsoUnknown=false
+PublisherByDefaultDispatchInsteadOfBroadcast=false
+
+# -------------------
+#|InfluxDB parameters|
+# -------------------
+InfluxDBHost=influxdb
+InfluxDBPort=8086
+InfluxDBUsername=root
+InfluxDBPassword=root
+InfluxDBTSDB=cyclops.tnova.udr
+InfluxDBDefaultMeasurement=Events
+InfluxDBPageSizeLimit=500
+
+# -----------------
+#|T-Nova parameters|
+# -----------------
+TNovaStartEvent=running
+UdrName=TNovaUDR
+
+# --------------------
+#|Scheduler parameters|
+# --------------------
+SchedulerFrequency=600

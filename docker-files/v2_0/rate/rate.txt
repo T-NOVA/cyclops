@@ -1,0 +1,32 @@
+# Publisher (RabbitMQ) credentials
+PublisherHost=rabbitmq
+PublisherUsername=guest
+PublisherPassword=guest
+PublisherPort=5672
+PublisherVirtualHost=/
+PublisherDispatchExchange=cyclops.tnova.rate.dispatch
+PublisherBroadcastExchange=cyclops.tnova.rate.broadcast
+PublisherIncludeAlsoUnknown=false
+PublisherByDefaultDispatchInsteadOfBroadcast=false
+
+# Consumer (RabbitMQ) credentials
+ConsumerHost=rabbitmq
+ConsumerUsername=guest
+ConsumerPassword=guest
+ConsumerPort=5672
+ConsumerVirtualHost=/
+ConsumerDataQueue=cyclops.tnova.rate.consume
+ConsumerCommandsQueue=cyclops.tnova.rate.commands
+
+# In case of unknown type default rate will be used
+UsageField=usage
+ChargeField=charge
+RateField=rate
+DefaultRate=0.5
+
+# Rates for specified sources
+CloudStack=0.7
+OpenStack=0.1
+
+# T-Nova Accounting settings
+AccountingServiceUrl=http://accounting:8000
